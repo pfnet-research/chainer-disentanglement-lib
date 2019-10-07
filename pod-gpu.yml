@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: udrl-gpu
+  labels:
+    project: unsupervised_disentangled_representation_learning
+    purpose: testing
+
+spec:
+  priorityClassName: "low"
+  nodeSelector:
+    k8s.pfn.io/with-gpu: "true"
+    nvidia.k8s.pfn.io/support-cuda-10-0: "true"
+  securityContext:
+    supplementalGroups:
+    - 51000  # fulltime
+    - 50002  # madoi
+  restartPolicy: Never
+  containers:
+  - name: udrl-gpu
+    image: harbor.mnj.pfn.io/user-nakata/i19_kyojin-gpu
+    command: ["sh"]
+    args: ["-c", "trap exit TERM; sleep infinity & wait"]
+    env:
+      - name: HTTP_PROXY
+        valueFrom:
+          fieldRef:
+            fieldPath: "metadata.annotations['k8s.pfn.io/internet-http-proxy']"
+      - name: HTTPS_PROXY
+        valueFrom:
+          fieldRef:
+            fieldPath: "metadata.annotations['k8s.pfn.io/internet-https-proxy']"
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+    resources:
+      limits:
+        cpu: "2000m"
+        memory: "10Gi"
+        nvidia.com/gpu: 1
+    volumeMounts:
+    - mountPath: /mnt/vol10
+      name: vol10
+    - mountPath: /mnt/vol12
+      name: vol12
+  volumes:
+  - name: vol10
+    hostPath:
+      path: /mnt/vol10
+  - name: vol12
+    hostPath:
+      path: /mnt/vol12
+  imagePullSecrets:
+  - name: harbor-mnj-cred
