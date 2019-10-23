@@ -4,6 +4,6 @@ disentanglement-lib==1.2
 matplotlib==3.0.3
 numpy==1.16.3
 pandas==0.24.2
-Pillow==6.0.0
+Pillow==6.2.0
 tensorflow==1.13.1
 tensorflow-probability==0.6.0
